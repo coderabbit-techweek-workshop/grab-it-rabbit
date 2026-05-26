@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Carrot Bug Bash</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="app-header">
+        <h1>Grab it Rabbit!</h1>
+      </header>
+
+      <section class="game-card">
+        <div class="hud">
+          <button type="button" id="restartButton" class="restart-button">
+            Restart
+          </button>
+        </div>
+
+        <canvas id="gameCanvas" width="1920" height="480"></canvas>
+
+        <div class="instructions">
+          <h2>How to Play</h2>
+          <ul>
+            <li><strong>Left Arrow / A</strong> &mdash; move left</li>
+            <li><strong>Right Arrow / D</strong> &mdash; move right</li>
+            <li><strong>Space</strong> &mdash; shoot a carrot</li>
+            <li><strong>R</strong> &mdash; restart the game</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <script src="game.js"></script>
+  </body>
+</html>
