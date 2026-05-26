@@ -1,5 +1,7 @@
 # Carrot Bug Bash
 
+Owner: OG/DAC
+
 A small browser arcade game where an orange bunny defends the garden by launching carrots at a bouncing bug. Built with plain HTML, CSS, and JavaScript — no build tools, no frameworks, no dependencies.
 
 ## Setup
