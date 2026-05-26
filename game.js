@@ -28,9 +28,6 @@
 
   const STATUS_BUG_HIT = "Bug hit! Press R to restart.";
 
-  const STATE_PLAYING = "playing";
-  const STATE_PAUSED = "paused";
-  const STATE_GAME_OVER = "gameOver";
 
   const bunny = {
     x: 0,
