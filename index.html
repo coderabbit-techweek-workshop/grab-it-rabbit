@@ -10,6 +10,10 @@
     <main class="app">
       <header class="app-header">
         <h1>Grab it Rabbit!</h1>
+        <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">
+          <span class="theme-toggle-icon">☀️</span>
+          <span class="theme-toggle-label">Light</span>
+        </button>
       </header>
 
       <section class="game-card">
@@ -34,5 +38,31 @@
     </main>
 
     <script src="game.js"></script>
+    <script>
+      const toggle = document.getElementById('themeToggle');
+      const icon = toggle.querySelector('.theme-toggle-icon');
+      const label = toggle.querySelector('.theme-toggle-label');
+
+      const saved = localStorage.getItem('theme');
+      if (saved === 'dark') applyDark();
+
+      toggle.addEventListener('click', () => {
+        if (document.documentElement.dataset.theme === 'dark') {
+          document.documentElement.removeAttribute('data-theme');
+          icon.textContent = '☀️';
+          label.textContent = 'Light';
+          localStorage.setItem('theme', 'light');
+        } else {
+          applyDark();
+        }
+      });
+
+      function applyDark() {
+        document.documentElement.dataset.theme = 'dark';
+        icon.textContent = '🌙';
+        label.textContent = 'Dark';
+        localStorage.setItem('theme', 'dark');
+      }
+    </script>
   </body>
 </html>

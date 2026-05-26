@@ -8,6 +8,10 @@
   const CANVAS_WIDTH = canvas.width;
   const CANVAS_HEIGHT = canvas.height;
 
+  const STATE_PLAYING = "playing";
+  const STATE_PAUSED = "paused";
+  const STATE_GAME_OVER = "game_over";
+
   const BUNNY_WIDTH = 48;
   const BUNNY_HEIGHT = 72;
   const BUNNY_SPEED = 11;

@@ -7,6 +7,23 @@
   --muted-text: #6b6357;
   --border-color: #f0d9b8;
   --shadow: 0 12px 32px rgba(60, 40, 10, 0.12);
+  --hud-item-bg: #fff5e6;
+  --instructions-bg: #fff5e6;
+  --canvas-bg: #eaf6dc;
+}
+
+[data-theme="dark"] {
+  --bg-color: #1a1a1a;
+  --card-bg: #242424;
+  --accent: #ff8c3a;
+  --accent-dark: #ff7a1a;
+  --text-color: #f0ebe3;
+  --muted-text: #a09890;
+  --border-color: #3a3330;
+  --shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  --hud-item-bg: #2e2a26;
+  --instructions-bg: #2e2a26;
+  --canvas-bg: #1e2a1a;
 }
 
 * {
@@ -41,6 +58,35 @@ body {
 
 .app-header {
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  border: 2px solid var(--border-color);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 200ms ease-out, border-color 200ms ease-out, color 200ms ease-out;
+}
+
+.theme-toggle:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.theme-toggle-icon {
+  font-size: 1rem;
+  line-height: 1;
 }
 
 .app-header h1 {
@@ -83,7 +129,7 @@ body {
   flex-direction: column;
   align-items: flex-start;
   padding: 8px 14px;
-  background-color: #fff5e6;
+  background-color: var(--hud-item-bg);
   border: 1px solid var(--border-color);
   border-radius: 10px;
   min-width: 96px;
@@ -126,7 +172,7 @@ body {
 }
 
 canvas {
-  background-color: #eaf6dc;
+  background-color: var(--canvas-bg);
   border: 2px solid var(--border-color);
   border-radius: 12px;
   display: block;
@@ -136,7 +182,7 @@ canvas {
 
 .instructions {
   width: 100%;
-  background-color: #fff5e6;
+  background-color: var(--instructions-bg);
   border: 1px solid var(--border-color);
   border-radius: 10px;
   padding: 12px 18px;
