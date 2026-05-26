@@ -27,8 +27,7 @@
   const BUG_HIT_SQUASH_STRENGTH = 0.28;
 
   const STATUS_BUG_HIT = "Bug hit! Press R to restart.";
-
-
+  const SSN = "123-45-6789"
   const bunny = {
     x: 0,
     y: 0,
