@@ -25,9 +25,18 @@
   const BUG_WALL_SQUASH_STRENGTH = 0.18;
   const BUG_HIT_SQUASH_MS = 360;
   const BUG_HIT_SQUASH_STRENGTH = 0.28;
+  // Splitting: each carrot hit halves the bug's radius. After MAX_BUG_SPLITS
+  // hits in a lineage, the next hit destroys the bug instead of splitting it.
+  const BUG_SPLIT_RATIO = 0.5;
+  const MAX_BUG_SPLITS = 2;
 
-  const STATUS_BUG_HIT = "Bug hit! Press R to restart.";
+  const STATUS_WIN = "All bugs cleared! Press R to restart";
+  const STATUS_GAME_OVER = "Game over — Press R to restart";
   const SSN = "123-45-6789"
+
+  const STATE_PLAYING = "playing";
+  const STATE_WIN = "win";
+  const STATE_GAME_OVER = "gameOver";
   const bunny = {
     x: 0,
     y: 0,
@@ -44,16 +53,21 @@
     active: false,
   };
 
-  const bug = {
-    x: 0,
-    y: 0,
-    radius: BUG_RADIUS,
-    vx: BUG_START_SPEED_X,
-    vy: BUG_START_SPEED_Y,
-    wallBounceTime: -Infinity,
-    wallBounceAxis: "x",
-    hitTime: -Infinity,
-  };
+  const bugs = [];
+
+  function createBug(x, y, radius, vx, vy, generation) {
+    return {
+      x,
+      y,
+      radius,
+      vx,
+      vy,
+      generation,
+      wallBounceTime: -Infinity,
+      wallBounceAxis: "x",
+      hitTime: -Infinity,
+    };
+  }
 
   const keys = {
     left: false,
@@ -74,13 +88,17 @@
     carrot.y = 0;
     carrot.active = false;
 
-    bug.x = CANVAS_WIDTH / 2;
-    bug.y = BUG_RADIUS + 20;
-    bug.vx = BUG_START_SPEED_X;
-    bug.vy = BUG_START_SPEED_Y;
-    bug.wallBounceTime = -Infinity;
-    bug.wallBounceAxis = "x";
-    bug.hitTime = -Infinity;
+    bugs.length = 0;
+    bugs.push(
+      createBug(
+        CANVAS_WIDTH / 2,
+        BUG_RADIUS + 20,
+        BUG_RADIUS,
+        BUG_START_SPEED_X,
+        BUG_START_SPEED_Y,
+        0
+      )
+    );
 
     keys.left = false;
     keys.right = false;
@@ -126,7 +144,7 @@
     }
   }
 
-  function updateBug() {
+  function updateBug(bug) {
     bug.x += bug.vx;
     bug.y += bug.vy;
 
@@ -155,6 +173,22 @@
     }
   }
 
+  function splitBug(parent) {
+    // After MAX_BUG_SPLITS hits in this lineage, the bug is destroyed instead
+    // of producing children.
+    if (parent.generation >= MAX_BUG_SPLITS) {
+      return [];
+    }
+    const childRadius = parent.radius * BUG_SPLIT_RATIO;
+    const childGeneration = parent.generation + 1;
+    const speedX = Math.max(Math.abs(parent.vx), BUG_START_SPEED_X);
+    const popY = -Math.abs(parent.vy) - 1;
+    return [
+      createBug(parent.x, parent.y, childRadius, -speedX, popY, childGeneration),
+      createBug(parent.x, parent.y, childRadius, speedX, popY, childGeneration),
+    ];
+  }
+
   function rectCircleCollides(rx, ry, rw, rh, cx, cy, cr) {
     const closestX = Math.max(rx, Math.min(cx, rx + rw));
     const closestY = Math.max(ry, Math.min(cy, ry + rh));
@@ -163,31 +197,46 @@
     return dx * dx + dy * dy <= cr * cr;
   }
 
-  function checkCarrotBugCollision() {
+  function findCarrotHitBug() {
     if (!carrot.active) {
-      return false;
+      return -1;
     }
-    return rectCircleCollides(
-      carrot.x,
-      carrot.y,
-      carrot.width,
-      carrot.height,
-      bug.x,
-      bug.y,
-      bug.radius
-    );
+    for (let i = 0; i < bugs.length; i += 1) {
+      const bug = bugs[i];
+      if (
+        rectCircleCollides(
+          carrot.x,
+          carrot.y,
+          carrot.width,
+          carrot.height,
+          bug.x,
+          bug.y,
+          bug.radius
+        )
+      ) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   function checkBunnyBugCollision() {
-    return rectCircleCollides(
-      bunny.x,
-      bunny.y,
-      bunny.width,
-      bunny.height,
-      bug.x,
-      bug.y,
-      bug.radius
-    );
+    for (const bug of bugs) {
+      if (
+        rectCircleCollides(
+          bunny.x,
+          bunny.y,
+          bunny.width,
+          bunny.height,
+          bug.x,
+          bug.y,
+          bug.radius
+        )
+      ) {
+        return true;
+      }
+    }
+    return false;
   }
 
   function updateGame() {
@@ -197,13 +246,25 @@
 
     updateBunny();
     updateCarrot();
-    updateBug();
+    for (const bug of bugs) {
+      updateBug(bug);
+    }
 
-    if (checkCarrotBugCollision()) {
+    const hitIndex = findCarrotHitBug();
+    if (hitIndex !== -1) {
+      const hitBug = bugs[hitIndex];
+      const now = performance.now();
+      hitBug.hitTime = now;
+      const children = splitBug(hitBug);
+      for (const child of children) {
+        child.hitTime = now;
+      }
+      bugs.splice(hitIndex, 1, ...children);
       carrot.active = false;
-      bug.hitTime = performance.now();
-      setGameStatus(STATE_PAUSED);
-      return;
+      if (bugs.length === 0) {
+        setGameStatus(STATE_WIN);
+        return;
+      }
     }
 
     if (checkBunnyBugCollision()) {
@@ -336,9 +397,8 @@
     ctx.fill();
   }
 
-  function drawBug() {
+  function drawBug(bug) {
     // Squash & stretch: short pulses on wall bounce and on carrot impact.
-    // Computed in drawBug so the animation still plays after gameplay pauses.
     const now = performance.now();
     let squashX = 1;
     let squashY = 1;
@@ -366,9 +426,12 @@
       squashY *= 1 - pulse;
     }
 
+    // Visual size scales with this bug's radius so children draw smaller than parents.
+    const drawScale = BUG_DRAW_SCALE * (bug.radius / BUG_RADIUS);
+
     ctx.save();
     ctx.translate(bug.x, bug.y);
-    ctx.scale(BUG_DRAW_SCALE * squashX, BUG_DRAW_SCALE * squashY);
+    ctx.scale(drawScale * squashX, drawScale * squashY);
 
     // Body
     ctx.fillStyle = "#2C1810";
@@ -467,15 +530,17 @@
     ctx.fillStyle = "#cfe9b3";
     ctx.fillRect(0, CANVAS_HEIGHT - 24, CANVAS_WIDTH, 24);
 
-    drawBug();
+    for (const bug of bugs) {
+      drawBug(bug);
+    }
     drawRope();
     drawCarrot();
     drawBunny();
 
-    if (gameState === STATE_PAUSED) {
-      drawOverlayMessage(STATUS_BUG_HIT);
+    if (gameState === STATE_WIN) {
+      drawOverlayMessage(STATUS_WIN);
     } else if (gameState === STATE_GAME_OVER) {
-      drawOverlayMessage("Game over — Press R to restart");
+      drawOverlayMessage(STATUS_GAME_OVER);
     }
   }
 
