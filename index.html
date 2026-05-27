@@ -5,11 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Carrot Bug Bash</title>
     <link rel="stylesheet" href="styles.css" />
+    <script>
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark') document.documentElement.dataset.theme = 'dark';
+    </script>
   </head>
   <body>
     <main class="app">
       <header class="app-header">
         <h1>Grab it Rabbit!</h1>
+        <button id="themeToggle" class="theme-toggle" aria-label="Switch to dark mode">
+          <span class="theme-toggle-icon">☀️</span>
+          <span class="theme-toggle-label">Light</span>
+        </button>
       </header>
 
       <section class="game-card">
@@ -34,5 +42,36 @@
     </main>
 
     <script src="game.js"></script>
+    <script>
+      const toggle = document.getElementById('themeToggle');
+      const icon = toggle.querySelector('.theme-toggle-icon');
+      const label = toggle.querySelector('.theme-toggle-label');
+
+      if (document.documentElement.dataset.theme === 'dark') {
+        icon.textContent = '🌙';
+        label.textContent = 'Dark';
+        toggle.setAttribute('aria-label', 'Switch to light mode');
+      }
+
+      toggle.addEventListener('click', () => {
+        if (document.documentElement.dataset.theme === 'dark') {
+          document.documentElement.removeAttribute('data-theme');
+          icon.textContent = '☀️';
+          label.textContent = 'Light';
+          toggle.setAttribute('aria-label', 'Switch to dark mode');
+          localStorage.setItem('theme', 'light');
+        } else {
+          applyDark();
+        }
+      });
+
+      function applyDark() {
+        document.documentElement.dataset.theme = 'dark';
+        icon.textContent = '🌙';
+        label.textContent = 'Dark';
+        toggle.setAttribute('aria-label', 'Switch to light mode');
+        localStorage.setItem('theme', 'dark');
+      }
+    </script>
   </body>
 </html>
