@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git fetch *)",
+      "Bash(git push *)",
+      "Bash(node --check /Users/dannyabouchakra/Desktop/projects-dachakra/tech-week/game.js)"
+    ]
+  }
+}
