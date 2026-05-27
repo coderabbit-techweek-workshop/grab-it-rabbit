@@ -1,7 +1,8 @@
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 language: "en-US"
 early_access: false
-tone_instructions: 'You are an expert code reviewer in Java, TypeScript, JavaScript, and NodeJS. You work in an enterprise software developer team, providing concise and clear code review advice. You only elaborate or provide detailed explanations when requested.'
+tone_instructions: 'You are an expert code reviewer in JavaScript, HTML and CSS. You work in an enterprise software developer team, providing concise and clear code review advice. You only elaborate or provide detailed explanations when requested.'
+
 reviews:
   profile: "assertive"
   request_changes_workflow: false
@@ -9,23 +10,28 @@ reviews:
   poem: true
   review_status: true
   collapse_walkthrough: false
+
   pre_merge_checks:
     custom_checks:
       - name: "Commit Message Format Compliance"
-        mode: "Error"
+        mode: "error"
         instructions: >-
           Review all commit messages in the PR for Conventional Commits compliance. Each message must start with a type (`feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `ci`, `perf`, or similar), followed by an optional parenthetical scope, an optional `!` to signal a breaking change, a colon, a space, and a short description. Use `feat` for new features and `fix` for bug fixes. If a scope is provided, the commit must only affect code within that scope. A longer body may follow the short description, separated by a blank line. Flag any commit message that does not conform to this structure.
+
       - name: "PII Check"
-        mode: "Error"
-        instruction: >- 
-          If you detect any PII in the PR fail this check.    
+        mode: "error"
+        instructions: >-
+          If you detect any PII in the PR, fail this check.
+
       - name: "Runtime Efficiency and Scaling Review"
-        mode: "Error"
+        mode: "error"
         instructions: >-
           Review changed code for material performance regressions. Flag O(n²) or worse behavior in any path that processes non-trivially sized input, including request handlers, background jobs, rendering paths, and collection iteration. Flag N+1 query patterns—database or external service calls inside a loop that should be batched, joined, or preloaded. Flag repeated recomputation of deterministic values inside loops where caching, memoization, or pre-computation outside the loop would eliminate redundant work. Flag inefficient data structure choices such as linear-search arrays for membership checks where a hash set is appropriate. Flag unbounded data accumulation, missing pagination, or caches without eviction. Flag expensive synchronous work (compression, hashing, template rendering) in hot paths where it should be deferred or sampled. Report only issues that could materially degrade latency, throughput, or resource usage at realistic input sizes—ignore micro-optimizations and speculative concerns.
+
   auto_review:
     enabled: true
     drafts: false
     base_branches: ["pg", "release"]
+
 chat:
   auto_reply: true
